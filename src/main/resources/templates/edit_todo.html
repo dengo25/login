@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Edit Todo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</head>
+<body>
+    <div class="section">
+        <h4 class="center-align">Edit Todo</h4>
+
+        <form method="post" th:action="@{'/todos/update/' + ${todo.id}}" class="row">
+            <div class="input-field col s12">
+                <input type="text" name="title" id="title" th:value="${todo.title}" required>
+                <label for="title">Title</label>
+            </div>
+            <div class="input-field col s12">
+                <input type="text" name="description" id="description" th:value="${todo.description}">
+                <label for="description">Description</label>
+            </div>
+            <div class="col s12 center-align">
+                <button type="submit" class="btn waves-effect waves-light blue">Update</button>
+                <a href="/todos" class="btn waves-effect waves-light grey">Cancel</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

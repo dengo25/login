@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Todo List</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            M.updateTextFields();
+            const titleInput = document.getElementById("title");
+            const descriptionInput = document.getElementById("description");
+            M.textareaAutoResize(titleInput);
+            M.textareaAutoResize(descriptionInput);
+        });
+    </script>
+    <style>
+        .todo-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+        }
+        .todo-buttons {
+            display: flex;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h4 class="center-align">My Todos</h4>
+        
+        <div class="right-align">
+            <form method="post" th:action="@{/logout}">
+                <button type="submit" class="btn waves-effect waves-light red">Logout</button>
+            </form>
+        </div>
+
+        <form method="post" th:action="@{/todos/add}" class="row">
+            <div class="input-field col s6">
+                <input type="text" name="title" id="title" class="validate" required>
+                <label for="title" class="active">Title</label>
+            </div>
+            <div class="input-field col s6">
+                <input type="text" name="description" id="description" class="validate">
+                <label for="description" class="active">Description</label>
+            </div>
+            <div class="col s12 center-align">
+                <button type="submit" class="btn waves-effect waves-light blue">Add Todo</button>
+            </div>
+        </form>
+
+        <div th:if="${todos != null and not #lists.isEmpty(todos)}">
+            <ul class="collection">
+                <li class="collection-item todo-item" th:each="todo : ${todos}">
+                    <div>
+                        <strong th:text="${todo.title}"></strong>
+                        <p th:text="${todo.description}"></p>
+                    </div>
+                    <div class="todo-buttons">
+                        <a th:href="@{'/todos/edit/' + ${todo.id}}" class="btn-small waves-effect waves-light orange">Edit</a>
+                        <form method="post" th:action="@{'/todos/delete/' + ${todo.id}}">
+                            <input type="hidden" name="_method" value="delete" />
+                            <button type="submit" class="btn-small waves-effect waves-light red">Delete</button>
+                        </form>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- 할 일이 없을 때 메시지 표시 -->
+        <p class="center-align" th:if="${todos == null or #lists.isEmpty(todos)}">No todos available. Add a new task above.</p>
+    </div>
+</body>
+</html>
