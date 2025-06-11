@@ -2,6 +2,7 @@ package com.example.devLogin.controller;
 
 import com.example.devLogin.entity.Todo;
 import com.example.devLogin.entity.User;
+import com.example.devLogin.security.vo.CustomOAth2User;
 import com.example.devLogin.service.TodoService;
 import com.example.devLogin.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -29,9 +30,9 @@ public class TodoController {
       return "redirect:/login";
     }
     
-    CustomUserDetails customUserDetails = (CustomUserDetails) principal; //사용자 정보를 커스텀 객체로 캐스팅
+    CustomOAth2User customOAth2User = (CustomOAth2User) principal; //사용자 정보를 커스텀 객체로 캐스팅
     
-    Optional<User> user = userService.findByUsername(customUserDetails.getUsername()); //DB 조회
+    Optional<User> user = userService.findByUsername(customOAth2User.getUsername()); //DB 조회
     if (user.isEmpty()) {
       return "redirect:/login";
     }
@@ -51,10 +52,10 @@ public class TodoController {
       return "redirect:/login";
     }
     
-    CustomUserDetails customUserDetails = (CustomUserDetails) principal;
+    CustomOAth2User customOAth2User = (CustomOAth2User) principal;
     
     User user = new User();
-    user.setId(customUserDetails.getUserId()); //현재 로그인한 사용자의 ID 설정
+    user.setId(customOAth2User.getUserId()); //현재 로그인한 사용자의 ID 설정
     
     todoService.addTodo(todo, user);
     return "redirect:/todos";
@@ -70,10 +71,10 @@ public class TodoController {
       return "redirect:/login";
     }
     
-    CustomUserDetails customUserDetails = (CustomUserDetails) principal;
+    CustomOAth2User customOAth2User = (CustomOAth2User) principal;
     
     User user = new User();
-    user.setId(customUserDetails.getUserId()); //현재 로그인한 사용자의 ID 설정
+    user.setId(customOAth2User.getUserId()); //현재 로그인한 사용자의 ID 설정
     
     todoService.deleteTodoById(id, user);
     return "redirect:/todos";
@@ -88,9 +89,9 @@ public class TodoController {
       return "redirect:/login";
     }
     
-    CustomUserDetails customUserDetails = (CustomUserDetails) principal;
+    CustomOAth2User customOAth2User = (CustomOAth2User) principal;
     
-    Long userId = customUserDetails.getUserId();
+    Long userId = customOAth2User.getUserId();
     
     Optional<Todo> todo = todoService.getTodoById(id); //해당 ID의 할 일 조회
     
@@ -115,13 +116,24 @@ public class TodoController {
       return "redirect:/login";
     }
     
-    CustomUserDetails customUserDetails = (CustomUserDetails) principal;
+    CustomOAth2User customOAth2User = (CustomOAth2User) principal;
     
     User user = new User();
-    user.setId(customUserDetails.getUserId()); //현재 로그인한 사용자의 ID 설정
+    user.setId(customOAth2User.getUserId()); //현재 로그인한 사용자의 ID 설정
     
     todoService.updateTodo(id, title, description, user);
     return "redirect:/todos";
   }
   
+  /*
+  * 보안 인증 및 처리 방식 요약
+  * Authentication 객체에서 로그인 된 사용자 정보를 꺼냄
+  * OAuth2 로그인 사용자의 경우 CustomOAuth2User 로 캐스팅
+  * 사용자 ID로 할 일 소유자와 비교하여 권한 있는 사용자만 조작 가능
+  *
+  * 이를테면
+  * 1. 사용자가 로그인 OAuth2->CustomOAuth2User 로 인증 정보저장
+  * 2. 사용자가 /todos 접근 -> 해당 사용자에게 연결된 Todo 목록 조회
+  * 3. 할 일 추가/삭제/수정 시 -> 사용자 ID로 검증 후 조작
+  * */
 }
