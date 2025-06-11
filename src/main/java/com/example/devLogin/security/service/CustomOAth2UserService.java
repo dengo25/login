@@ -71,6 +71,13 @@ public class CustomOAth2UserService implements OAuth2UserService<OAuth2UserReque
     String id = attributes.getId();
     String socialType = "";
     
+    if("naver".equals(registrationId)) {
+      socialType = "naver";
+    }
+    else {
+      socialType = "google";
+    }
+    
     log.info("loadUser nameAttributeKey = " + nameAttributeKey);
     log.info("loadUser id = " + id);
     log.info("loadUser socialType = " + socialType);
