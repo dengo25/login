@@ -14,7 +14,7 @@ import java.util.Optional;
 public class UserService {
   
   private final UserRepository userRepository;
-  private PasswordEncoder passwordEncoder; //비밀번호 암호화를 위한 인코더
+  private final PasswordEncoder passwordEncoder; //비밀번호 암호화를 위한 인코더
   
   //사용자 등록
   public User registerUser(String username, String password) {
