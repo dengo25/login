@@ -2,7 +2,6 @@ package com.example.devLogin.security.service;
 
 import com.example.devLogin.entity.User;
 import com.example.devLogin.repository.UserRepository;
-import com.example.devLogin.security.vo.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

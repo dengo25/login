@@ -2,7 +2,6 @@ package com.example.devLogin.controller;
 
 import com.example.devLogin.entity.Todo;
 import com.example.devLogin.entity.User;
-import com.example.devLogin.security.vo.CustomUserDetails;
 import com.example.devLogin.service.TodoService;
 import com.example.devLogin.service.UserService;
 import lombok.RequiredArgsConstructor;
