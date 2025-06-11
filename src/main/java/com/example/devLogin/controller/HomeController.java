@@ -19,5 +19,6 @@ public class HomeController {
   @GetMapping("/logout")
   public String logout() {
     return "redirect:/login?logout"; //로그아웃 후 "/login?logout"경로로 리다이렉트
+    //?logout 쿼리 파라미터는 프론트에서 확인해서 성공메세지 등을 반환하기 위해서
   }
 }
