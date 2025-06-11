@@ -1,0 +1,54 @@
+package com.example.devLogin.security.dto;
+
+import lombok.Builder;
+import lombok.Getter;
+
+import java.util.Map;
+
+@Getter
+//Oauth 인증 후 반환된 사용자 정보를 담는 DTO zmffotm
+public class OAuthAttributes {
+  
+  private Map<String ,Object> attributes; //Oauth 제공자로부터 전달 받은 사용자 정보 전체 Map
+  private String nameAttributeKey; //Oauth 사용자 식별 키
+  private String name;
+  private String email;
+  private String picture;
+  private String id; //사용자 고유 id
+  
+  @Builder
+  public OAuthAttributes(Map<String, Object> attributes, //전체 속성 Map
+                         String nameAttributeKey, //식별 키 이름
+                         String name,
+                         String email,
+                         String picture, //프로필 이미지
+                         String id) { //사용자 ID
+    this.attributes = attributes;
+    this.nameAttributeKey = nameAttributeKey;
+    this.name = name;
+    this.email = email;
+    this.picture = picture;
+    this.id = id;
+  }
+  
+  // OAuthAttributes 객체를 생성하는 정적 팩토리 메서드
+  // 현재는 Google만 처리
+  public static OAuthAttributes of(String registrationId, String userNameAttributeName,
+                                   Map<String, Object> attributes) {
+    
+    return ofGoogle(userNameAttributeName, attributes);
+  }
+  
+  // Google 로그인 전용 사용자 정보 매핑 메서드
+  private static OAuthAttributes ofGoogle(String userNameAttributeName, Map<String, Object> attributes) {
+    return OAuthAttributes.builder()
+        .name((String) attributes.get("name"))
+        .email((String) attributes.get("email"))
+        .picture((String) attributes.get("picture"))
+        .id((String) attributes.get(userNameAttributeName))
+        .attributes(attributes)
+        .nameAttributeKey(userNameAttributeName)
+        .build();
+  }
+  
+}
