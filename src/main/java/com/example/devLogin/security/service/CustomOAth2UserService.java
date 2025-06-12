@@ -4,7 +4,7 @@ package com.example.devLogin.security.service;
 import com.example.devLogin.entity.User;
 import com.example.devLogin.repository.UserRepository;
 import com.example.devLogin.security.dto.OAuthAttributes;
-import com.example.devLogin.security.vo.CustomOAth2User;
+import com.example.devLogin.security.vo.CustomUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
@@ -141,7 +141,7 @@ public class CustomOAth2UserService implements OAuth2UserService<OAuth2UserReque
     
     // 커스텀 OAuth2USer 객체 반환(spring security에서 세션에 저장됨)
     //controller에서는 @AuthenticationPrincipal로 사용이 가능함
-    return new CustomOAth2User(userId, email, name, authorities, attributes);
+    return new CustomUser(userId, email, name, authorities, attributes);
   }
   
   
