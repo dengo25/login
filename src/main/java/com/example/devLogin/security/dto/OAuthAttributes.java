@@ -43,6 +43,9 @@ public class OAuthAttributes {
       
       return ofKakao("id", attributes);
     }
+    else if("github".equals(registrationId)) {
+      return ofGitHub("id", attributes);
+    }
     
     return ofGoogle(userNameAttributeName, attributes);
   }
@@ -93,6 +96,26 @@ public class OAuthAttributes {
         .email(email)
         .picture(profileImageUrl)
         .id("" + id)
+        .attributes(attributes)
+        .nameAttributeKey(userNameAttributeName)
+        .build();
+  }
+  
+  
+  //github 로그인 전용 사용자 정보 매핑 메서드
+  private static OAuthAttributes ofGitHub(String userNameAttributeName, Map<String, Object> attributes) {
+    String username = (String)attributes.get("login");
+    Integer id = (Integer)attributes.get("id");
+    String profileImageUrl = (String)attributes.get("avatar_url");
+    String email = (String)attributes.get("email");
+    
+    String nickname = username; //github는 닉네임이 별도로 없으므로 login을 닉네임으로 사용
+    
+    return OAuthAttributes.builder()
+        .name(nickname)
+        .email(email)
+        .picture(profileImageUrl)
+        .id("" + id) //id는 문자열로 변환하여 저장
         .attributes(attributes)
         .nameAttributeKey(userNameAttributeName)
         .build();
