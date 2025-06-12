@@ -66,7 +66,7 @@ public class CustomOAth2UserService implements OAuth2UserService<OAuth2UserReque
     log.info("loadUser registrationId = " + registrationId);
     log.info("loadUser userNameAttributeName = " + userNameAttributeName);
     
-    //OAuthAttributes라는 DTO 객체로 사용자 정보 매핑
+    //OAuthAttributes라는 DTO 객체로 사용자 정보 매핑 ->제공자 별 사용자 정보 파싱
     OAuthAttributes attributes = OAuthAttributes.of(registrationId, userNameAttributeName, oAuth2User.getAttributes());
     
     //속성 정보 추출
@@ -90,7 +90,7 @@ public class CustomOAth2UserService implements OAuth2UserService<OAuth2UserReque
       if(email == null) {
         log.info("loadUser userRequest.getAccessToken().getTokenValue() = " + userRequest.getAccessToken().getTokenValue());
         
-        email = getEmailFromGitHub(userRequest.getAccessToken().getTokenValue());
+        email = getEmailFromGitHub(userRequest.getAccessToken().getTokenValue()); //이메일 보완 조회
         
         log.info("loadUser GitHub email = " + email);
       }
@@ -140,9 +140,12 @@ public class CustomOAth2UserService implements OAuth2UserService<OAuth2UserReque
     Long userId = createdUser.getId();
     
     // 커스텀 OAuth2USer 객체 반환(spring security에서 세션에 저장됨)
+    //controller에서는 @AuthenticationPrincipal로 사용이 가능함
     return new CustomOAth2User(userId, email, name, authorities, attributes);
   }
   
+  
+  //github API를 호출하여 이메일 정보를 받아옴
   private String getEmailFromGitHub(String accessToken) {
     String url = "https://api.github.com/user/emails";
     
@@ -156,8 +159,10 @@ public class CustomOAth2UserService implements OAuth2UserService<OAuth2UserReque
     
     ResponseEntity<List> response = restTemplate.exchange(url, HttpMethod.GET, entity, List.class);
     
-    List<Map<String, Object>> emails = response.getBody();
+    List<Map<String, Object>> emails = response.getBody(); //응답 결과 추출
     
+    
+    // primary(기본) 이메일 반환
     if (emails != null) {
       for (Map<String, Object> emailData : emails) {
         if ((Boolean) emailData.get("primary")) {

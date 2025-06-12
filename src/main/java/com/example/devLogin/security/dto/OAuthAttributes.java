@@ -6,7 +6,7 @@ import lombok.Getter;
 import java.util.Map;
 
 @Getter
-//Oauth 인증 후 반환된 사용자 정보를 담는 DTO zmffotm
+//Oauth 인증 후 반환된 사용자 정보를 담는 DTO 클래스
 public class OAuthAttributes {
   
   private Map<String ,Object> attributes; //Oauth 제공자로부터 전달 받은 사용자 정보 전체 Map
@@ -32,7 +32,7 @@ public class OAuthAttributes {
   }
   
   // OAuthAttributes 객체를 생성하는 정적 팩토리 메서드
-  // 현재는 Google,Naver
+  // OAuth 서비스 제공자(registertionId)에 따라 적절한 파싱 메서드 호출
   public static OAuthAttributes of(String registrationId, String userNameAttributeName,
                                    Map<String, Object> attributes) {
 
@@ -64,6 +64,7 @@ public class OAuthAttributes {
   
   //naver 로그인 전용 사용자 정보 매핑 메서드
   private static OAuthAttributes ofNaver(String userNameAttributeName, Map<String, Object> attributes) {
+    //naver는 response키 내부에 사용자 정보가 있음
     Map<String, Object> response = (Map<String, Object>)attributes.get("response");
     
     return OAuthAttributes.builder()
