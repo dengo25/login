@@ -2,6 +2,7 @@ package com.example.devLogin.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@Builder
 @Table(
     uniqueConstraints = { @UniqueConstraint(columnNames = "username") } //username 컬럼은 유일해야 함
 )
