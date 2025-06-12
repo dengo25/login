@@ -39,6 +39,10 @@ public class OAuthAttributes {
     if("naver".equals(registrationId)) {
       return ofNaver("id", attributes);
     }
+    else if("kakao".equals(registrationId)) {
+      
+      return ofKakao("id", attributes);
+    }
     
     return ofGoogle(userNameAttributeName, attributes);
   }
@@ -65,6 +69,31 @@ public class OAuthAttributes {
         .picture((String) response.get("profile_image"))
         .id((String) response.get(userNameAttributeName))
         .attributes(response)
+        .nameAttributeKey(userNameAttributeName)
+        .build();
+  }
+  
+  //kakao 로그인 전용 사용자 정보 매핑 메서드
+  private static OAuthAttributes ofKakao(String userNameAttributeName, Map<String, Object> attributes) {
+    Long id = (Long)attributes.get("id");
+    
+    //계정 정보
+    //카카오는 중첩 구조이기 떄문에 map으로 계정 꺼내줘야한다.
+    Map<String, Object> kakaoAccount = (Map<String, Object>)attributes.get("kakao_account");
+    
+    //프로필 객체에서 이름 및 프로필 이미지 추출
+    Map<String, Object> profile = (Map<String, Object>)kakaoAccount.get("profile");
+    String nickname = (String)profile.get("nickname");
+    String profileImageUrl = (String)profile.get("profile_image_url");
+    
+    String email = (String)kakaoAccount.get("email");
+    
+    return OAuthAttributes.builder()
+        .name(nickname)
+        .email(email)
+        .picture(profileImageUrl)
+        .id("" + id)
+        .attributes(attributes)
         .nameAttributeKey(userNameAttributeName)
         .build();
   }

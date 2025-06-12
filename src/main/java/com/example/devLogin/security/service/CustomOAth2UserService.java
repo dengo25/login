@@ -74,6 +74,9 @@ public class CustomOAth2UserService implements OAuth2UserService<OAuth2UserReque
     if("naver".equals(registrationId)) {
       socialType = "naver";
     }
+    else if("kakao".equals(registrationId)) {
+      socialType = "kakao";
+    }
     else {
       socialType = "google";
     }
