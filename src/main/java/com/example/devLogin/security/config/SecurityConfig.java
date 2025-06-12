@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
@@ -15,11 +16,13 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 @Configuration //설정클래스임을 spring에게 알림
-@EnableWebSecurity //spring security 웹 보안 활정화
+@EnableWebSecurity //spring security 웹 보안 활성화
 @RequiredArgsConstructor
 public class SecurityConfig {
   
   private final OAuth2UserService customOAth2UserService;  //OAuth2 로그인 사용자 정보처리 서비스
+  
+  private final UserDetailsService customUserDetailsService; //일반 로그인 시 사용자 정보를 로드할 커스텀 서비스
   
   @Bean //비밀번호 암호화를 위한 Bean등록
   PasswordEncoder passwordEncoder() {
@@ -32,6 +35,15 @@ public class SecurityConfig {
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/", "/users/register", "/login", "/css/**", "/js/**").permitAll() //누구나 접근 허용
             .anyRequest().authenticated() //위 요청외에는 인증 필요
+        )
+        //일반 로그인 처리 시 사용자 정보 조회 서비스 등록
+        .userDetailsService(customUserDetailsService)
+        .formLogin(form -> form
+            .loginPage("/login") //사용자 정의 로그인 페이지
+            .permitAll() //로그인 페이지는 모두 접근 허용
+            .defaultSuccessUrl("/todos", true) //로그인 성공 후 기본 이동 경로
+            .successHandler(authenticationSuccessHandler())
+            .failureHandler(authenticationFailureHandler())
         )
         //OAuth2 로그인 성정
         .oauth2Login(oauth2 -> oauth2
