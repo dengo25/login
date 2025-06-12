@@ -9,7 +9,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Table(uniqueConstraints = { @UniqueConstraint(columnNames = "username") })
+@Table(
+    uniqueConstraints = { @UniqueConstraint(columnNames = "username") } //username 컬럼은 유일해야 함
+)
 public class UserEntity {
   
   @Id
@@ -23,4 +25,4 @@ public class UserEntity {
   
   private String role;
   
-  private String authProvider;}
+}
