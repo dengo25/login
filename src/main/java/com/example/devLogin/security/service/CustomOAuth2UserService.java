@@ -38,13 +38,13 @@ import java.util.Optional;
    4. CustomOAuth2User 객체를 생성해서 반환, 이 객체는 spring security내부에서 인증된 사용자 정보를 담는 역할
    
 */
-public class CustomOAth2UserService implements OAuth2UserService<OAuth2UserRequest,OAuth2User> {
+public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest,OAuth2User> {
   
   private final UserRepository userRepository;
   
   private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
   
-  
+  //OAuth2 로그인 성공 시 사용자 정보를 로드하고 사용자 등록, 조회 및 반환
   @Override
   public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
     
@@ -53,7 +53,7 @@ public class CustomOAth2UserService implements OAuth2UserService<OAuth2UserReque
     //기본 OAuth2UserService를 통해 로그인된 사용자의 정보를 받아온다.
     // 소셜 로그인에 성공하면 토큰을 기반으로 사용자 정보가 json으로 넘어오고 그걸 OAuth2User객체로 변환
     OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate = new DefaultOAuth2UserService();
-    OAuth2User oAuth2User = delegate.loadUser(userRequest);
+    OAuth2User oAuth2User = delegate.loadUser(userRequest); //사용자 정보 요청
     
     
     //Oath2 서비스 등록 -> 어떤 플랫폼으로 로그인 했는지 구분
@@ -139,9 +139,11 @@ public class CustomOAth2UserService implements OAuth2UserService<OAuth2UserReque
     //DB에 저장된 사용자 ID
     Long userId = createdUser.getId();
     
-    // 커스텀 OAuth2USer 객체 반환(spring security에서 세션에 저장됨)
-    //controller에서는 @AuthenticationPrincipal로 사용이 가능함
-    return new CustomUser(userId, email, name, authorities, attributes);
+    //사용자 정보를 담은 CustomUser 객체 생성
+    CustomUser customUser = new CustomUser(userId, email, authorities, attributes);
+    
+    return customUser;  //OAuth2User리턴
+    //위 객체는 Security content에 저장되어 세션 로그인 상태로 유지된다.₩
   }
   
   
