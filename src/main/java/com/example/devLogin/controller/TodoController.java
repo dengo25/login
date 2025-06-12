@@ -7,6 +7,7 @@ import com.example.devLogin.service.TodoService;
 import com.example.devLogin.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +23,7 @@ public class TodoController {
   private final TodoService todoService;
   private final UserService userService;
   
+  //authentication객체는 spring security가 자동으로 만들어주는 인증 정보
   @GetMapping
   public String listTodos(Authentication authentication, Model model) {
     Object principal = authentication.getPrincipal(); //현재 인증된 사용자 정보 조회
@@ -29,7 +31,7 @@ public class TodoController {
     if (principal == null) {
       return "redirect:/login";
     }
-    
+    //CustomUser는 직접 만든 사용자 클래스(UserDetails와 OAuth2User를 동시에 구현해서 하나의 객체로 다룰 수 있도록 설정
     CustomUser customUser = (CustomUser) principal; //사용자 정보를 커스텀 객체로 캐스팅
     
     Optional<User> user = userService.findByUsername(customUser.getUsername()); //DB 조회
@@ -42,7 +44,12 @@ public class TodoController {
     
     return "todos";
   }
-  
+  //아래와 같은 방식으로도 사용가능
+/*  @GetMapping("/mypage")
+  public String myPage(@AuthenticationPrincipal CustomUser customUser) {
+    customUser.getUsername()
+  }
+  */
   
   @PostMapping("/add")
   public String addTodo(Authentication authentication, @ModelAttribute Todo todo) {
