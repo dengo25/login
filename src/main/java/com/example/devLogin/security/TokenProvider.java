@@ -1,6 +1,7 @@
 package com.example.devLogin.security;
 
 import com.example.devLogin.entity.UserEntity;
+import com.example.devLogin.security.vo.CustomUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -61,6 +62,20 @@ public class TokenProvider {
     
     return Jwts.builder()
         .setSubject(String.valueOf(userId))
+        .setIssuedAt(new Date())
+        .setExpiration(expiryDate)
+        .signWith(SIGNING_KEY, SignatureAlgorithm.HS512)
+        .compact();
+  }
+  
+  //OAuth2 에서 사용하려고 만듬
+  public String create(final Authentication authentication) {
+    CustomUser userPrincipal = (CustomUser) authentication.getPrincipal();
+    
+    Date expiryDate = Date.from(Instant.now().plus(1, ChronoUnit.DAYS));
+    
+    return Jwts.builder()
+        .setSubject(userPrincipal.getName())
         .setIssuedAt(new Date())
         .setExpiration(expiryDate)
         .signWith(SIGNING_KEY, SignatureAlgorithm.HS512)
