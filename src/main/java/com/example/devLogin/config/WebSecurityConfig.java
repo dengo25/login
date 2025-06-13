@@ -1,11 +1,15 @@
 package com.example.devLogin.config;
 
 import com.example.devLogin.security.JwtAuthenticationFilter;
+import com.example.devLogin.security.OAuthSuccessHandler;
+import com.example.devLogin.security.RedirectUrlCookieFilter;
+import com.example.devLogin.security.service.CustomOAuth2UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -25,14 +29,25 @@ public class WebSecurityConfig {
 */
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
   
+  
+  private final OAuthSuccessHandler oAuthSuccessHandler;
+  
+  //리다이렉트 url정보를 쿠키에 저장하는 필터
+  private final RedirectUrlCookieFilter redirectUrlFilter;
+  
+  
   //필터체인에 등록하려면 JwtAuthenticationFilter에서 이 객체를 사용할 수 있어야하기 때문에 생성자 주입방식 사용
-  public WebSecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+  public WebSecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter
+      , OAuthSuccessHandler oAuthSuccessHandler
+      , RedirectUrlCookieFilter redirectUrlFilter) {
     this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    this.oAuthSuccessHandler = oAuthSuccessHandler;
+    this.redirectUrlFilter = redirectUrlFilter;
   }
   
   //보안 필터 체인 정의
   @Bean
-  SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+  SecurityFilterChain securityFilterChain(HttpSecurity http, CustomOAuth2UserService customOAuth2UserService) throws Exception {
     http
         .cors(cors -> {}) //cors설정 활성화
         .csrf(csrf -> csrf.disable()) //csrf 비활성화 (restApi 서버에서 주로 사용)
@@ -48,10 +63,22 @@ public class WebSecurityConfig {
         
         //만든 jwtAuthenticationFilter를 UsernamePasswordAuthenticationFilter 이후에 실행되도록 추가
         .addFilterAfter(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+        
+        //OAuth2 로그인 설정
+        .oauth2Login(oauth2 -> oauth2
+            .userInfoEndpoint(userInfo ->userInfo
+                .userService(customOAuth2UserService) //OAuth2 사용자 정보 로딩
+            )
+            .successHandler(oAuthSuccessHandler)
+        )
+        
         .exceptionHandling(exception -> exception
             //인증 실패 시 403 Forbidden 반환
             .authenticationEntryPoint(new Http403ForbiddenEntryPoint())
-        );
+        )
+        
+        .addFilterBefore(redirectUrlFilter, OAuth2AuthorizationRequestRedirectFilter.class);
+    
     return http.build();
   }
   
