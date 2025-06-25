@@ -77,6 +77,7 @@ public class WebSecurityConfig {
             .authenticationEntryPoint(new Http403ForbiddenEntryPoint())
         )
         
+        //리다이렉트 url 쿠키필터를 OAuth2 리다이렉트 필터 이전에 실행
         .addFilterBefore(redirectUrlFilter, OAuth2AuthorizationRequestRedirectFilter.class);
     
     return http.build();

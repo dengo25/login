@@ -26,10 +26,20 @@ public class OAuthAttributes {
     this.id = id;
   }
   
-  //OAuth 제공자 구분에 따라 처리할 메서드 (현재는 Google만 지원)
+  //OAuth 제공자 구분에 따라 처리할 메서드
   public static OAuthAttributes of(String registrationId, String userNameAttributeName, Map<String, Object> attributes) {
     
-    return ofGoogle(userNameAttributeName, attributes);
+    if("naver".equals(registrationId)) { //Naver로그인
+      return ofNaver("id", attributes);
+    }
+    else if("kakao".equals(registrationId)) {
+      return ofKakao("id", attributes);
+    }
+    else if("github".equals(registrationId)) {
+      return ofGitHub("id", attributes);
+    }
+    
+    return ofGoogle(userNameAttributeName, attributes); //기본값은 Google 로그인 처리
   }
   
   private static OAuthAttributes ofGoogle(String userNameAttributeName, Map<String, Object> attributes) {
@@ -43,11 +53,54 @@ public class OAuthAttributes {
         .build();
   }
   
-/*  google에서 제공하는 json 형태
-  {
-    "sub":"123124124",
-    "name":"김무개",
-    "email":"test@test.com",
-    "picture":"http://profile.jpg"
-  }*/
+  private static OAuthAttributes ofNaver(String userNameAttributeName, Map<String, Object> attributes) {
+    Map<String, Object> response = (Map<String, Object>)attributes.get("response");
+    
+    return OAuthAttributes.builder()
+        .name((String) response.get("name"))
+        .email((String) response.get("email"))
+        .picture((String) response.get("profile_image"))
+        .id((String) response.get(userNameAttributeName))
+        .attributes(response)
+        .nameAttributeKey(userNameAttributeName)
+        .build();
+  }
+  
+  private static OAuthAttributes ofKakao(String userNameAttributeName, Map<String, Object> attributes) {
+    Long id = (Long)attributes.get("id");
+    
+    Map<String, Object> kakaoAccount = (Map<String, Object>)attributes.get("kakao_account");
+    
+    Map<String, Object> profile = (Map<String, Object>)kakaoAccount.get("profile");
+    String nickname = (String)profile.get("nickname");
+    String profileImageUrl = (String)profile.get("profile_image_url");
+    
+    String email = (String)kakaoAccount.get("email");
+    
+    return OAuthAttributes.builder()
+        .name(nickname)
+        .email(email)
+        .picture(profileImageUrl)
+        .id("" + id)
+        .attributes(attributes)
+        .nameAttributeKey(userNameAttributeName)
+        .build();
+  }
+  
+  private static OAuthAttributes ofGitHub(String userNameAttributeName, Map<String, Object> attributes) {
+    String username = (String)attributes.get("login");
+    Integer id = (Integer)attributes.get("id");
+    String nickname = username;
+    String profileImageUrl = (String)attributes.get("avatar_url");
+    String email = (String)attributes.get("email");
+    
+    return OAuthAttributes.builder()
+        .name(nickname)
+        .email(email)
+        .picture(profileImageUrl)
+        .id("" + id)
+        .attributes(attributes)
+        .nameAttributeKey(userNameAttributeName)
+        .build();
+  }
 }
